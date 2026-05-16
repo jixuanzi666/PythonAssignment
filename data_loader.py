@@ -11,17 +11,30 @@ def _fix_emnist_orientation(image):
     return image
 
 class EMNISTDataset(Dataset):
-    def __init__(self, split='letters', train=True):
+    def __init__(self, split='letters', train=True, augment=False):
+        transform_list = []
+        if train and augment:
+            transform_list.append(
+                transforms.RandomAffine(
+                    degrees=15,
+                    translate=(0.1, 0.1),
+                    scale=(0.9, 1.1),
+                    shear=10,
+                )
+            )
+
+        transform_list.extend([
+            transforms.ToTensor(),
+            transforms.Lambda(_fix_emnist_orientation),
+            transforms.Normalize((0.1307,), (0.3081,))
+        ])
+
         self.data = datasets.EMNIST(
             root='./data',
             split=split,
             train=train,
             download=True,
-            transform=transforms.Compose([
-                transforms.ToTensor(),
-                transforms.Lambda(_fix_emnist_orientation),
-                transforms.Normalize((0.1307,), (0.3081,))
-            ])
+            transform=transforms.Compose(transform_list)
         )
 
     def __len__(self):
@@ -39,8 +52,8 @@ def label_to_char(label: int) -> str:
     return LETTER_LABELS[label]
 
 def get_dataloader(batch_size=64):
-    train_dataset = EMNISTDataset(train=True)
-    test_dataset = EMNISTDataset(train=False)
+    train_dataset = EMNISTDataset(train=True, augment=True)
+    test_dataset = EMNISTDataset(train=False, augment=False)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
