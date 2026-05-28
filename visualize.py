@@ -101,7 +101,7 @@ def main(output_dir='outputs'):
     train_dataset = EMNISTDataset(
         train=True,
         augment=True,
-        add_gaussian=False,  
+        add_gaussian=True,  
         add_salt_pepper=False)
 
     typical_samples = collect_typical_samples(train_dataset)
