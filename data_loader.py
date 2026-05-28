@@ -31,7 +31,7 @@ class AddSaltPepperNoise:
         return noisy
 
 class EMNISTDataset(Dataset):
-    def __init__(self, split='letters', train=True, augment=False,add_noise=False):
+    def __init__(self, split='letters', train=True, augment=False,add_gaussian=False, add_salt_pepper=False):
         transform_list = []
         if train and augment:
             transform_list.append(
@@ -42,15 +42,18 @@ class EMNISTDataset(Dataset):
                     shear=10,
                 )
             )
-        if train and add_noise:
-            transform_list.append(AddGaussianNoise(sigma=0.15))
-            transform_list.append(AddSaltPepperNoise(prob=0.08))
-        transform_list.extend([
-            transforms.ToTensor(),
-            transforms.Lambda(_fix_emnist_orientation),
-            transforms.Normalize((0.1307,), (0.3081,))
-        ])
+            
+        transform_list.append(transforms.ToTensor())
+        transform_list.append(transforms.Lambda(_fix_emnist_orientation))
 
+        if train and add_gaussian:
+            transform_list.append(AddGaussianNoise(sigma=0.15))
+
+        if train and add_salt_pepper:
+            transform_list.append(AddSaltPepperNoise(prob=0.08))
+       
+        transform_list.append(transforms.Normalize((0.1307,), (0.3081,)))
+        
         self.data = datasets.EMNIST(
             root='./data',
             split=split,
@@ -74,7 +77,7 @@ def label_to_char(label: int) -> str:
     return LETTER_LABELS[label]
 
 def get_dataloader(batch_size=64):
-    train_dataset = EMNISTDataset(train=True, augment=True, add_noise= False)
+    train_dataset = EMNISTDataset(train=True, augment=True, add_gaussian=False, add_salt_pepper=False)
     test_dataset = EMNISTDataset(train=False, augment=False)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)

@@ -16,17 +16,17 @@ def denormalize(image_tensor: torch.Tensor) -> torch.Tensor:
     return image.clamp(0.0, 1.0)
 
 
-def add_gaussian_noise(image: torch.Tensor, sigma: float = 0.2) -> torch.Tensor:
-    noise = torch.randn_like(image) * sigma
-    return (image + noise).clamp(0.0, 1.0)
+# def add_gaussian_noise(image: torch.Tensor, sigma: float = 0.2) -> torch.Tensor:
+#     noise = torch.randn_like(image) * sigma
+#     return (image + noise).clamp(0.0, 1.0)
 
 
-def add_salt_pepper_noise(image: torch.Tensor, prob: float = 0.08) -> torch.Tensor:
-    noisy = image.clone()
-    random_map = torch.rand_like(noisy)
-    noisy[random_map < prob / 2] = 0.0
-    noisy[random_map > 1 - prob / 2] = 1.0
-    return noisy
+# def add_salt_pepper_noise(image: torch.Tensor, prob: float = 0.08) -> torch.Tensor:
+#     noisy = image.clone()
+#     random_map = torch.rand_like(noisy)
+#     noisy[random_map < prob / 2] = 0.0
+#     noisy[random_map > 1 - prob / 2] = 1.0
+#     return noisy
 
 
 def collect_typical_samples(dataset: EMNISTDataset):
